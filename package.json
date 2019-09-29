@@ -1,5 +1,6 @@
 {
   "name": "user-registration-frontend",
+  "proxy": "http://localhost:3000/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,6 +9,7 @@
     "react-dom": "^16.9.0",
     "react-router-dom": "^5.1.0",
     "react-scripts": "3.1.2",
+    "react-toastify": "^5.4.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.1"
   },
