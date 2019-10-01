@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import axios from "axios";
+import { withRouter } from 'react-router';
 import { toast } from "react-toastify";
 
 export const AuthContext = React.createContext({});
@@ -14,6 +15,10 @@ class AuthProvider extends PureComponent {
       token: null
     };
   }
+
+	componentDidMount() {
+		this.isUserLoggedin();
+	}
 
   signup = async data => {
     const url = "v1/signup"
@@ -33,9 +38,18 @@ class AuthProvider extends PureComponent {
       const response = await axios.post(url, data);
       if (response.data.success) {
         const { user, token } = response.data.data;
-        this.setState({ user, token, isUserLogin: true },
-          toast.success.bind(null, `Bem vindo, ${user.username}`)
-        )
+
+        const storedData = await new Promise(resolve => {
+          localStorage.setItem('token', token);
+			    localStorage.setItem('user', JSON.stringify(user));
+			    resolve(true);
+        })
+
+        if (storedData) {
+          this.setState({ user, token, isUserLogin: true },
+            this.props.history.push(`/user/${user.id}`)
+          )
+        }
       }
       console.log(response);
     } catch (error) {
@@ -43,12 +57,34 @@ class AuthProvider extends PureComponent {
     }
   };
 
+  logout = async () => {
+    this.setState({
+      user: null, token: null, isUserLogin: false
+    }, () => {
+      this.props.history.push("/login")
+      localStorage.clear();
+    });
+  }
+
+  isUserLoggedin = async () => {
+		const { token, user } = localStorage;
+
+		if (token && user) {
+			this.setState({
+					isUserLogin: true,
+					user: JSON.parse(user),
+					token,
+				});
+		}
+	};
+
   render() {
     const value = {
       state: { ...this.state },
       action: {
         signup: this.signup,
-        signin: this.signin
+        signin: this.signin,
+        logout: this.logout
       }
     };
 
@@ -60,4 +96,4 @@ class AuthProvider extends PureComponent {
   }
 }
 
-export default AuthProvider;
+export default withRouter(AuthProvider);

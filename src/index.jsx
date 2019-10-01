@@ -7,6 +7,7 @@ import "semantic-ui-css/semantic.min.css";
 import AuthProvider from "./context/Auth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -14,6 +15,7 @@ ReactDOM.render(
       <Switch>
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Register} />
+        <Route path="/user/:userId" component={Profile} />
         <Route render={() => <Redirect to="/login" />} />
       </Switch>
     </AuthProvider>

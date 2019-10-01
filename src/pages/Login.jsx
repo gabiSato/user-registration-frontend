@@ -4,20 +4,21 @@ import { Grid, Segment, Form, Input, Button } from "semantic-ui-react";
 import "./style.css";
 
 const Login = () => {
-  const { action: { signin } } = useContext(AuthContext);
+  const {
+    action: { signin }
+  } = useContext(AuthContext);
 
   const [state, setState] = useState({
     username: "",
     password: ""
-  })
+  });
 
   const onChange = (e, data) => {
     const { name, value } = data;
-    setState(prev => ({ ...prev, [name]: value }))
+    setState(prev => ({ ...prev, [name]: value }));
   };
 
-  const onSubmit = () => 
-    signin(state)
+  const onSubmit = () => signin(state);
 
   return (
     <Grid textAlign="center" verticalAlign="middle" className="container">
@@ -26,9 +27,9 @@ const Login = () => {
         <Form>
           <Segment stacked>
             <Form.Field>
-              <Input 
-                icon="user" 
-                iconPosition="left" 
+              <Input
+                icon="user"
+                iconPosition="left"
                 placeholder="Username"
                 name="username"
                 value={state.username}
@@ -36,11 +37,11 @@ const Login = () => {
               />
             </Form.Field>
             <Form.Field>
-              <Input 
-                icon="lock" 
-                type="password" 
-                iconPosition="left" 
-                placeholder="Password" 
+              <Input
+                icon="lock"
+                type="password"
+                iconPosition="left"
+                placeholder="Password"
                 name="password"
                 value={state.password}
                 onChange={onChange}
