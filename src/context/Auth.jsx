@@ -1,7 +1,8 @@
 import React, { PureComponent } from "react";
 import axios from "axios";
-import { withRouter } from 'react-router';
+import { withRouter } from "react-router";
 import { toast } from "react-toastify";
+import aesjs from "aes-js";
 
 export const AuthContext = React.createContext({});
 
@@ -16,39 +17,40 @@ class AuthProvider extends PureComponent {
     };
   }
 
-	componentDidMount() {
-		this.isUserLoggedin();
-	}
+  componentDidMount() {
+    this.isUserLoggedin();
+  }
 
   signup = async data => {
-    const url = "v1/signup"
+    const url = "v1/signup";
     try {
-      const response = await axios.post(url, data);
-      if (response.data.success)
-        toast.success(response.data.message)
+      const response = await axios.post(url, this.encryptData(data));
+      if (response.data.success) toast.success(response.data.message);
       console.log(response);
     } catch (error) {
       console.log(error);
     }
   };
 
-  signin = async (data) => {
+  signin = async data => {
     const url = "v1/signin/";
     try {
-      const response = await axios.post(url, data);
+      console.log(this.encryptData(data))
+      const response = await axios.post(url, this.encryptData(data));
       if (response.data.success) {
         const { user, token } = response.data.data;
 
         const storedData = await new Promise(resolve => {
-          localStorage.setItem('token', token);
-			    localStorage.setItem('user', JSON.stringify(user));
-			    resolve(true);
-        })
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          resolve(true);
+        });
 
         if (storedData) {
-          this.setState({ user, token, isUserLogin: true },
+          this.setState(
+            { user, token, isUserLogin: true },
             this.props.history.push(`/user/${user.id}`)
-          )
+          );
         }
       }
       console.log(response);
@@ -58,25 +60,44 @@ class AuthProvider extends PureComponent {
   };
 
   logout = async () => {
-    this.setState({
-      user: null, token: null, isUserLogin: false
-    }, () => {
-      this.props.history.push("/login")
-      localStorage.clear();
-    });
-  }
+    this.setState(
+      {
+        user: null,
+        token: null,
+        isUserLogin: false
+      },
+      () => {
+        this.props.history.push("/login");
+        localStorage.clear();
+      }
+    );
+  };
 
   isUserLoggedin = async () => {
-		const { token, user } = localStorage;
+    const { token, user } = localStorage;
 
-		if (token && user) {
-			this.setState({
-					isUserLogin: true,
-					user: JSON.parse(user),
-					token,
-				});
-		}
-	};
+    if (token && user) {
+      this.setState({
+        isUserLogin: true,
+        user: JSON.parse(user),
+        token
+      });
+    }
+  };
+
+  encryptData = data => {
+    const key = Array.from({length: 24}, () => Math.floor(Math.random() * 100));
+    const aesCtr = new aesjs.ModeOfOperation.ctr(key);
+    const encryptedData = {};
+
+    for (const [name, value] of Object.entries(data)) {
+      const textBytes = aesjs.utils.utf8.toBytes(value);
+      const encryptedBytes = aesCtr.encrypt(textBytes);
+      encryptedData[name] = aesjs.utils.hex.fromBytes(encryptedBytes);
+    }
+
+    return { key, ...encryptedData }
+  };
 
   render() {
     const value = {
