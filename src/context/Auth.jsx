@@ -23,9 +23,12 @@ class AuthProvider extends PureComponent {
 
   signup = async data => {
     const url = "v1/signup";
+    console.log(data)
+    console.log(this.encryptData(data))
     try {
       const response = await axios.post(url, this.encryptData(data));
       if (response.data.success) toast.success(response.data.message);
+      else toast.error(response.data.message)
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -34,8 +37,9 @@ class AuthProvider extends PureComponent {
 
   signin = async data => {
     const url = "v1/signin/";
+    console.log(data)
     try {
-      console.log(this.encryptData(data))
+      console.log(this.encryptData(data));
       const response = await axios.post(url, this.encryptData(data));
       if (response.data.success) {
         const { user, token } = response.data.data;
@@ -53,6 +57,7 @@ class AuthProvider extends PureComponent {
           );
         }
       }
+      else toast.error(response.data.message)
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -86,7 +91,9 @@ class AuthProvider extends PureComponent {
   };
 
   encryptData = data => {
-    const key = Array.from({length: 24}, () => Math.floor(Math.random() * 100));
+    const key = Array.from({ length: 24 }, () =>
+      Math.floor(Math.random() * 100)
+    );
     const aesCtr = new aesjs.ModeOfOperation.ctr(key);
     const encryptedData = {};
 
@@ -96,7 +103,7 @@ class AuthProvider extends PureComponent {
       encryptedData[name] = aesjs.utils.hex.fromBytes(encryptedBytes);
     }
 
-    return { key, ...encryptedData }
+    return { key, ...encryptedData };
   };
 
   render() {
